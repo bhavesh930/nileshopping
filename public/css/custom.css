@@ -1,0 +1,40 @@
+@charset "UTF-8";
+
+/*!
+ * CoreUI - HTML, CSS, and JavaScript UI Components Library
+ * @version v3.3.0
+ * @link https://coreui.io/
+ * Copyright (c) 2020 creativeLabs Łukasz Holeczek
+ * License MIT  (https://coreui.io/license/)
+ */
+
+
+.categoryListing{
+	background-color: #fff;
+}
+
+.categoryUl{
+	overflow-y: scroll; 
+	height: calc(70vh);
+	padding-top: 10px;
+	padding-left: 0;
+}
+
+.categoryUl li{
+	list-style: none;
+	padding: 6px 0;
+	cursor: pointer;
+	padding-left: 15px;
+}
+
+.branding { padding: 30px 0; display: none; }
+.brandCheck { text-align: center; padding-bottom: 10px }
+.brandBtn { text-align: center; }
+ul.categoryUl li.active {
+    background-color: aliceblue;
+}
+.brandSelectionLeft, .brandSelectionRight { padding: 15px; }
+.brandHint { padding: 0px 20px; }
+.brandCreateBtn { text-align: center; padding: 10px; }
+.brandName { text-align: center; }
+li.oldBrands { margin-bottom: 5px; }
