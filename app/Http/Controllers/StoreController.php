@@ -278,7 +278,7 @@ class StoreController extends Controller
         }
         
         // Get all listings for the seller
-        $listings = Listing::where('user_id', $sellerId)
+        $listings = Listing::with('listingdata')->where('user_id', $sellerId)
             ->where('status', 3) // Active listings
             ->get();
         
