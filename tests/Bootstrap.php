@@ -3,10 +3,12 @@
 namespace Tests;
 
 use Illuminate\Contracts\Console\Kernel;
-use PHPUnit\Runner\AfterLastTestHook;
-use PHPUnit\Runner\BeforeFirstTestHook;
+use PHPUnit\Runner\Extension\Extension;
+use PHPUnit\Runner\Extension\Facade;
+use PHPUnit\Runner\Extension\ParameterCollection;
+use PHPUnit\TextUI\Configuration\Configuration;
 
-class Bootstrap implements BeforeFirstTestHook, AfterLastTestHook
+class Bootstrap implements Extension
 {
     /*
     |--------------------------------------------------------------------------
@@ -21,7 +23,7 @@ class Bootstrap implements BeforeFirstTestHook, AfterLastTestHook
 
     use CreatesApplication;
 
-    public function executeBeforeFirstTest(): void
+    public function bootstrap(Configuration $configuration, Facade $facade, ParameterCollection $parameters): void
     {
         $console = $this->createApplication()->make(Kernel::class);
 
@@ -33,10 +35,9 @@ class Bootstrap implements BeforeFirstTestHook, AfterLastTestHook
         foreach ($commands as $command) {
             $console->call($command);
         }
-    }
 
-    public function executeAfterLastTest(): void
-    {
-        array_map('unlink', glob('bootstrap/cache/*.phpunit.php'));
+        register_shutdown_function(function () {
+            array_map('unlink', glob('bootstrap/cache/*.phpunit.php'));
+        });
     }
 }

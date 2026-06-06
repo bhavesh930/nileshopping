@@ -1,0 +1,974 @@
+{
+  "info": {
+    "_postman_id": "nileshopping-api-collection",
+    "name": "NileShopping API",
+    "description": "JWT-authenticated mobile API for NileShopping (Laravel 12 + tymon/jwt-auth ^2.0).\n\n## Setup\n\n1. Set the collection variable `base_url` (default: `http://nileshopping.test`).\n2. Run **Auth → Signin** (or **Signin (Phone)**) — the response's `authorization.token` is captured automatically into `{{token}}` and used for every subsequent request.\n\nUnauthenticated endpoints: `signup`, `signin`, `login` (mobile phone-only). Everything else requires the JWT.\n\nGenerated from `routes/api.php` and `app/Http/Controllers/Api/`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://nileshopping.test",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Signup",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"name\": \"Jane\",\n  \"lastname\": \"Doe\",\n  \"email\": \"jane.doe@example.com\",\n  \"phone\": \"9999999999\",\n  \"gender\": \"female\",\n  \"dob\": \"1995-04-12\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/signup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "signup"
+              ]
+            },
+            "description": "Create a new user.\n\n**Validation**\n- `name` required, string, between 2 and 100\n- `email` required, valid email, max 100, unique:users\n- `phone` required, string, unique:users\n- `gender` required, string, between 2 and 100\n\n**Optional**: `lastname`, `dob` (Y-m-d)\n\n**Note**: password is hard-coded server-side to `Nile@2021`."
+          }
+        },
+        {
+          "name": "Signin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  const token = json?.authorization?.token || json?.access_token || json?.token;",
+                  "  if (token) {",
+                  "    pm.collectionVariables.set('token', token);",
+                  "    console.log('Saved token to collection variable.');",
+                  "  } else {",
+                  "    console.warn('No token field found in response — check the JSON shape.');",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"email\": \"jane.doe@example.com\",\n  \"password\": \"Nile@2021\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/signin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "signin"
+              ]
+            },
+            "description": "Email + password login. On success, the test script captures the JWT from the response into the collection variable `{{token}}`.\n\n**Validation**\n- `email` required, valid email\n- `password` required, string, min 5"
+          }
+        },
+        {
+          "name": "Signin (Phone — Mobile)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  const token = json?.authorization?.token || json?.access_token || json?.token;",
+                  "  if (token) pm.collectionVariables.set('token', token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"phone\": \"9999999999\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "login"
+              ]
+            },
+            "description": "Phone-only login intended for the mobile app. Returns 404 if the phone isn't registered. Server uses the hard-coded password `Nile@2021` internally."
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "user"
+              ]
+            },
+            "description": "Returns the authenticated user."
+          }
+        },
+        {
+          "name": "Token Refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  const token = json?.authorization?.token || json?.access_token || json?.token;",
+                  "  if (token) pm.collectionVariables.set('token', token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/token-refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "token-refresh"
+              ]
+            },
+            "description": "Refresh the JWT. Captures the new token into `{{token}}`."
+          }
+        },
+        {
+          "name": "Signout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/signout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "signout"
+              ]
+            },
+            "description": "Invalidates the current JWT."
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Profile & Address",
+      "item": [
+        {
+          "name": "Edit Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Jane",
+                  "type": "text"
+                },
+                {
+                  "key": "lastname",
+                  "value": "Doe",
+                  "type": "text",
+                  "description": "optional"
+                },
+                {
+                  "key": "email",
+                  "value": "jane.doe@example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "gender",
+                  "value": "female",
+                  "type": "text"
+                },
+                {
+                  "key": "dob",
+                  "value": "1995-04-12",
+                  "type": "text",
+                  "description": "optional, Y-m-d"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "",
+                  "description": "optional file upload"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user/profile/edit",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "profile",
+                "edit"
+              ]
+            },
+            "description": "Update the authenticated user's profile. Uses `multipart/form-data` because `image` is a file upload.\n\n**Validation**\n- `name` required, string, between 2 and 100\n- `email` required, valid email, max 100\n- `gender` required, string, between 2 and 100"
+          }
+        },
+        {
+          "name": "List User Addresses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/address?user_id=1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "address"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "1",
+                  "description": "required, integer"
+                }
+              ]
+            },
+            "description": "Get addresses for a user. **Note:** despite being GET, the controller validates a required `user_id` query param."
+          }
+        },
+        {
+          "name": "Add Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"title\": \"Home\",\n  \"line1\": \"42 Wallaby Way\",\n  \"line2\": \"Apt 3\",\n  \"city\": \"Sydney\",\n  \"postal\": \"560001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user/add/address",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "add",
+                "address"
+              ]
+            },
+            "description": "**Validation**\n- `title` required, string\n- `line1` required, string\n- `city` required, string\n- `postal` required, string, min 6\n\n`line2` is optional."
+          }
+        },
+        {
+          "name": "Make Default Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"address_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user/address/default",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "address",
+                "default"
+              ]
+            },
+            "description": "**Validation**\n- `address_id` required, integer"
+          }
+        },
+        {
+          "name": "Edit Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"id\": 1,\n  \"address_id\": 1,\n  \"title\": \"Home\",\n  \"line1\": \"42 Wallaby Way\",\n  \"line2\": \"Apt 3\",\n  \"city\": \"Sydney\",\n  \"postal\": \"560001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user/address/edit",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "address",
+                "edit"
+              ]
+            },
+            "description": "Edit an existing address.\n\n**Validation**\n- `title` required, string\n- `line1` required, string\n- `city` required, string\n- `postal` required, string, min 6\n\nController also reads both `id` and `address_id` — pass both to be safe. `line2` optional."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/category/list?category_id=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "category",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "category_id",
+                  "value": "",
+                  "description": "optional — if provided, returns the category and its children"
+                }
+              ]
+            },
+            "description": "Returns top-level categories. If `category_id` is supplied, returns that category plus its sub-tree."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products by Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/category/product/list?category_id=1&offset=0&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "category",
+                "product",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "category_id",
+                  "value": "1",
+                  "description": "required"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "optional, default 0"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "optional, default 10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Product Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/product/detail?product_id=1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "product",
+                "detail"
+              ],
+              "query": [
+                {
+                  "key": "product_id",
+                  "value": "1",
+                  "description": "required — listingdatas id"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Home Screen Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/home/screen?slug=&category_id=&offset=0&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "home",
+                "screen"
+              ],
+              "query": [
+                {
+                  "key": "slug",
+                  "value": "",
+                  "description": "optional — 1=Best Selling, 2=Trending, 3=New, 4=Accessories, 5=Recently viewed, 6=Shop now, 7=Quick buy (currently random products regardless of slug)"
+                },
+                {
+                  "key": "category_id",
+                  "value": "",
+                  "description": "optional"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "optional, default 0"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "optional, default 10"
+                }
+              ]
+            },
+            "description": "Returns products for the home screen. Currently returns randomized products; the slug filter is wired but not yet branching on slug values in the controller."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wishlist",
+      "item": [
+        {
+          "name": "Toggle Product in Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"listing_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/add/product/whishlist",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "add",
+                "product",
+                "whishlist"
+              ]
+            },
+            "description": "Toggles wishlist membership: adds if not present, removes if present.\n\n**Note**: endpoint name is misspelled `whishlist` in the route — kept as-is to match the API."
+          }
+        },
+        {
+          "name": "List Wishlist",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/whishlist/list?offset=0&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "whishlist",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "optional, default 0"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "optional, default 10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Add to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"product_id\": 1,\n  \"quantity\": 1,\n  \"cart_id\": null,\n  \"delivery_type\": 1,\n  \"product_attribute\": null,\n  \"isCheckout\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/add/cart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "add",
+                "cart"
+              ]
+            },
+            "description": "**Validation**\n- `product_id` required\n- `quantity` required\n\n**Optional**\n- `cart_id` — if provided, updates the existing cart row\n- `delivery_type` — 1=Home, 2=Pickup\n- `product_attribute`\n- `isCheckout` — when truthy, returns the full checkout payload immediately"
+          }
+        },
+        {
+          "name": "List Cart",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/cart/list?offset=0&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "optional, default 0"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "optional, default 10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete from Cart",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/cart/delete?cart_id=1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "delete"
+              ],
+              "query": [
+                {
+                  "key": "cart_id",
+                  "value": "1",
+                  "description": "required"
+                }
+              ]
+            },
+            "description": "Soft-deletes the cart row by setting `deleted_at`."
+          }
+        },
+        {
+          "name": "Checkout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"cart_update\": \"[{\\\"cart_id\\\":1,\\\"quantity\\\":2}]\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/checkout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
+            },
+            "description": "Recalculates totals, delivery charge, GST (18%), and grand total.\n\n**Optional**: `cart_update` — JSON string of `[{cart_id, quantity}, …]` to apply quantity updates before recalculating."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Place Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"cart_id\": \"1,2,3\",\n  \"address_id\": 1,\n  \"payment_mode\": 1,\n  \"total_price\": 1499.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/order",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "order"
+              ]
+            },
+            "description": "Creates an order from the listed cart rows.\n\n- `cart_id` — comma-separated string of cart IDs being ordered\n- `address_id` — shipping address id\n- `payment_mode` — 1=Cash, 2=Online\n- `total_price` — final amount\n\nOrder status is set to 2 (Pending). Each referenced cart row's status is also set to 2."
+          }
+        },
+        {
+          "name": "Order History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/order/history?order_id=&offset=0&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "order",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "order_id",
+                  "value": "",
+                  "description": "optional — filter to a specific order"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "optional, default 0"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "optional, default 10"
+                }
+              ]
+            },
+            "description": "Returns all orders with `order_status >= 2`, or a single order when `order_id` is supplied."
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"order_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/order/cancel",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "order",
+                "cancel"
+              ]
+            },
+            "description": "Sets `order_status = 4` (Cancelled) and the related cart rows' status to 5.\n\n**Cannot cancel** if the order is already in status 3 (Paid) — request will be rejected."
+          }
+        },
+        {
+          "name": "Submit Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"order_id\": 1,\n  \"product_id\": 1,\n  \"rating\": 4.5,\n  \"review\": \"Loved it.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/order/review",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "order",
+                "review"
+              ]
+            },
+            "description": "Submit a review for an ordered product. Provide at least one of `rating` or `review`. Duplicate reviews for the same `order_id + product_id + user` are blocked."
+          }
+        }
+      ]
+    }
+  ]
+}

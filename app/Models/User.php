@@ -92,13 +92,7 @@ class User extends Authenticatable implements JWTSubject
 
         'email_verified_at' => 'datetime',
 
-    ];
-
-
-
-    protected $dates = [
-
-        'deleted_at'
+        'deleted_at' => 'datetime',
 
     ];
 

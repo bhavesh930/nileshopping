@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
 
 class MediaTest extends TestCase
 {
-    use DatabaseMigrations;
+    use RefreshDatabase;
 
     public function testIndex(){
         $user = User::factory()->admin()->create();

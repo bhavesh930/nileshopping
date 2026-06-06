@@ -233,7 +233,7 @@ class SellerController extends Controller
         $categoryData = Category::where('id', $listing->category_id)->first();
         $brandData = Brand::where('brand_id', $listing->brand_id)->first();
 
-        return redirect()->action('SellerController@createListing',['vertical'=>$categoryData->slug, 'brand'=>$brandData->brand_name, 'id'=>$listing->unique_id]);
+        return redirect()->route('createListing', ['vertical'=>$categoryData->slug, 'brand'=>$brandData->brand_name, 'id'=>$listing->unique_id]);
     }
 
     public function storeListingData(Request $request)
@@ -406,7 +406,7 @@ class SellerController extends Controller
         //$listing = DB::table('listings')->where('unique_id', $request->listing_id)->first();
         $categoryData = Category::where('id', $listing->category_id)->first();
         $brandData = Brand::where('brand_id', $listing->brand_id)->first();
-        return redirect()->action('SellerController@createListing',['vertical'=>$categoryData->slug, 'brand'=>$brandData->brand_name, 'id'=>$listing->unique_id]);
+        return redirect()->route('createListing', ['vertical'=>$categoryData->slug, 'brand'=>$brandData->brand_name, 'id'=>$listing->unique_id]);
         //print_r($dataArr);
         //die();
     }
@@ -418,15 +418,15 @@ class SellerController extends Controller
         $listingPhotos = DB::table('listingphotos')->where('listing_id',$listing_id)->first();
         if($request->file('image_1')){
             $image1 = $this->uploadImage($request->image_1, '/uploads/listings/'.$listing_id);
-            if( $listingPhotos && file_exists(public_path('/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_1)) ) {
-                unlink(url('/').'/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_1);
+            if( $listingPhotos && is_file(public_path('/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_1)) ) {
+                unlink(public_path('/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_1));
             }
             $dataArr['image_1'] = $image1;
         }
 
         if($request->file('image_2')){
             $image2 = $this->uploadImage($request->image_2, '/uploads/listings/'.$listing_id);
-            if( $listingPhotos && file_exists(public_path('/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_2)) ) {
+            if( $listingPhotos && is_file(public_path('/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_2)) ) {
                 unlink(public_path('/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_2));
             }
             $dataArr['image_2'] = $image2;
@@ -434,24 +434,24 @@ class SellerController extends Controller
 
         if($request->file('image_3')){
             $image3 = $this->uploadImage($request->image_3, '/uploads/listings/'.$listing_id);
-            if( $listingPhotos && file_exists(public_path('/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_3)) ) {
-                unlink(url('/').'/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_3);
+            if( $listingPhotos && is_file(public_path('/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_3)) ) {
+                unlink(public_path('/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_3));
             }
             $dataArr['image_3'] = $image3;
         }
 
         if($request->file('image_4')){
             $image4 = $this->uploadImage($request->image_4, '/uploads/listings/'.$listing_id);
-            if( $listingPhotos && file_exists(public_path('/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_4)) ) {
-                unlink(url('/').'/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_4);
+            if( $listingPhotos && is_file(public_path('/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_4)) ) {
+                unlink(public_path('/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_4));
             }
             $dataArr['image_4'] = $image4;
         }
 
         if($request->file('image_5')){
             $image5 = $this->uploadImage($request->image_5, '/uploads/listings/'.$listing_id);
-            if( $listingPhotos && file_exists(public_path('/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_5)) ) {
-                unlink(url('/').'/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_5);
+            if( $listingPhotos && is_file(public_path('/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_5)) ) {
+                unlink(public_path('/uploads/listings/'.$listing_id.'/'.$listingPhotos->image_5));
             }
             $dataArr['image_5'] = $image5;
         }
@@ -463,7 +463,7 @@ class SellerController extends Controller
         $categoryData = Category::where('id', $listing->category_id)->first();
         $brandData = Brand::where('brand_id', $listing->brand_id)->first();
 
-        return redirect()->action('SellerController@createListing',['vertical'=>$categoryData->slug, 'brand'=>$brandData->brand_name, 'id'=>$listing->unique_id]);
+        return redirect()->route('createListing', ['vertical'=>$categoryData->slug, 'brand'=>$brandData->brand_name, 'id'=>$listing->unique_id]);
     }
 
     public function addListing()
@@ -519,10 +519,36 @@ class SellerController extends Controller
 
     public function storeListingSizeChartData(Request $request)
     {
-        $units = $request->unit;
-        $brandSize = $request->brand_size;
-        $price = $request->price;
-        $quantity = $request->quantity;
+        $request->validate([
+            'listing_id'  => 'required|integer',
+            'unit'        => 'required|array|min:1',
+            'unit.*'      => 'required|string',
+            'price'       => 'required|array',
+            'quantity'    => 'required|array',
+            'brand_size'  => 'nullable|array',
+            'sizeUnit'    => 'nullable|string',
+        ]);
+
+        $units     = $request->unit;
+        $brandSize = $request->brand_size ?? [];
+        $price     = $request->price;
+        $quantity  = $request->quantity;
+
+        // Per-row check: a checked size must have a matching numeric price/quantity.
+        // (The form renders price[]/quantity[] for every row including unchecked ones,
+        // so we can't validate price.* required globally — only for indices in unit[].)
+        $errors = [];
+        foreach ($units as $key => $value) {
+            if (! isset($price[$key]) || $price[$key] === '' || ! is_numeric($price[$key]) || $price[$key] < 0) {
+                $errors["price.$key"] = "Please enter a valid price for size '{$value}'.";
+            }
+            if (! isset($quantity[$key]) || $quantity[$key] === '' || ! is_numeric($quantity[$key]) || $quantity[$key] < 0) {
+                $errors["quantity.$key"] = "Please enter a valid quantity for size '{$value}'.";
+            }
+        }
+        if (! empty($errors)) {
+            throw \Illuminate\Validation\ValidationException::withMessages($errors);
+        }
 
         $sizeData = DB::table('listing_sizechart')->where('listing_id', $request->listing_id)->get();
         if($sizeData) {
@@ -535,7 +561,7 @@ class SellerController extends Controller
 
         if(isset($request->unit)) {
             foreach ($request->unit as $key => $value) {
-                $sizeChart = array('sizeFor'=>$request->sizeUnit, 'size'=>$value, 'brand_size'=>$brandSize[$key], 'price'=>$price[$key], 'quantity'=>$quantity[$key]);
+                $sizeChart = array('sizeFor'=>$request->sizeUnit, 'size'=>$value, 'brand_size'=>$brandSize[$key] ?? null, 'price'=>$price[$key], 'quantity'=>$quantity[$key]);
 
                 DB::table('listing_sizechart')->updateOrInsert( ['listing_id' => $request->listing_id, 'size' => $value], $sizeChart );
             }

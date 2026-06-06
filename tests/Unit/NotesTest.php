@@ -14,7 +14,7 @@ use App\Models\Notes;
 
 class NotesTest extends TestCase
 {
-    use DatabaseMigrations;
+    use RefreshDatabase;
 
     /**
      * @return void
@@ -96,7 +96,7 @@ class NotesTest extends TestCase
         $note = Notes::factory()->create();
         $note->title = 'Updated title';
         $note->content = 'Updated content';
-        $this->actingAs($user)->put('/notes/'.$user->id, $note->toArray());
+        $this->actingAs($user)->put('/notes/'.$note->id, $note->toArray());
         $this->assertDatabaseHas('notes',['id'=> $note->id , 'title' => 'Updated title', 'content' => 'Updated content']);
     }
 

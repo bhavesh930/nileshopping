@@ -158,8 +158,13 @@ class FormService{
         $result = array();
         $roles = Role::all();
         foreach($roles as $role){
-            if($role->hasPermissionTo('browse bread ' . $formId)){
-                array_push($result, $role->name);
+            try {
+                if($role->hasPermissionTo('browse bread ' . $formId)){
+                    array_push($result, $role->name);
+                }
+            } catch (\Throwable $e) {
+                // Spatie v6 throws PermissionDoesNotExist when the permission is not registered;
+                // v3 returned false silently. Match ResourceController's existing handling.
             }
         }
         return $result;

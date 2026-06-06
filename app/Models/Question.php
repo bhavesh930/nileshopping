@@ -12,9 +12,12 @@ class Question extends Model
 
     protected $table = 'questions';
     public $timestamps = true;
-    protected $dates = ['deleted_at'];
 
     protected $fillable = ['category_id', 'section', 'question', 'hint', 'placeholder', 'type'];
+
+    protected $casts = [
+        'deleted_at' => 'datetime',
+    ];
 
     public function QuestionOptions()
 	{

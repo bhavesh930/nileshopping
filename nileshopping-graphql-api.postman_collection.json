@@ -1,0 +1,1438 @@
+{
+    "info": {
+        "_postman_id": "nileshopping-api-v2-collection",
+        "name": "NileShopping API v2 (GraphQL + REST)",
+        "description": "## NileShopping Mobile API\n\nIncludes all REST endpoints **and** the Lighthouse GraphQL home screen APIs.\n\n### Quick Start\n1. Import the companion **NileShopping – Local** environment and select it.\n2. Run **Auth → Signin (Phone — Mobile)** with your phone number — the JWT is auto-saved to `{{AUTH_TOKEN}}`.\n3. Every GraphQL request in the **GraphQL – Home Screen** folder is ready to fire.\n\n### GraphQL Endpoint\n`POST {{BASE_URL}}/api/graphql`\n\n### Authentication\nAll APIs (REST and GraphQL) use a JWT Bearer token.  `Authorization: Bearer {{AUTH_TOKEN}}`\n\n### Environment Variables\n| Variable | Description |\n|---|---|\n| `BASE_URL` | e.g. `http://localhost/nileShopping/public` |\n| `AUTH_TOKEN` | JWT — auto-captured from login response |",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{AUTH_TOKEN}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "BASE_URL",
+            "value": "http://localhost/nileShopping/public",
+            "type": "string"
+        },
+        {
+            "key": "AUTH_TOKEN",
+            "value": "",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Auth",
+            "description": "Authentication endpoints — login, signup, token refresh, signout.",
+            "item": [
+                {
+                    "name": "Signup",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"name\": \"John\",\n  \"lastname\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"9999999999\",\n  \"gender\": \"Male\",\n  \"dob\": \"1995-04-12\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/signup",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "signup"
+                            ]
+                        },
+                        "description": "Register a new user. Default password is `Nile@2021`."
+                    }
+                },
+                {
+                    "name": "Signin (Email)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "  const json = pm.response.json();",
+                                    "  const token = json?.authorization?.token || json?.access_token || json?.token;",
+                                    "  if (token) {",
+                                    "    pm.collectionVariables.set('AUTH_TOKEN', token);",
+                                    "    pm.environment.set('AUTH_TOKEN', token);",
+                                    "    console.log('JWT saved to AUTH_TOKEN');",
+                                    "  }",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"Nile@2021\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/signin",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "signin"
+                            ]
+                        },
+                        "description": "Email + password login. JWT auto-saved to `{{AUTH_TOKEN}}`."
+                    }
+                },
+                {
+                    "name": "Signin (Phone — Mobile)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "  const json = pm.response.json();",
+                                    "  const token = json?.authorization?.token || json?.access_token || json?.token;",
+                                    "  if (token) {",
+                                    "    pm.collectionVariables.set('AUTH_TOKEN', token);",
+                                    "    pm.environment.set('AUTH_TOKEN', token);",
+                                    "    console.log('JWT saved to AUTH_TOKEN');",
+                                    "  }",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"phone\": \"9999999999\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/login",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "login"
+                            ]
+                        },
+                        "description": "Phone-only login for mobile app. JWT auto-saved to `{{AUTH_TOKEN}}`."
+                    }
+                },
+                {
+                    "name": "Token Refresh",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "  const json = pm.response.json();",
+                                    "  const token = json?.authorization?.token || json?.access_token || json?.token;",
+                                    "  if (token) {",
+                                    "    pm.collectionVariables.set('AUTH_TOKEN', token);",
+                                    "    pm.environment.set('AUTH_TOKEN', token);",
+                                    "  }",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/token-refresh",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "token-refresh"
+                            ]
+                        },
+                        "description": "Refresh the JWT before it expires. New token saved to `{{AUTH_TOKEN}}`."
+                    }
+                },
+                {
+                    "name": "Signout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/signout",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "signout"
+                            ]
+                        },
+                        "description": "Invalidates the current JWT."
+                    }
+                },
+                {
+                    "name": "Get Current User",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/user",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "user"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GraphQL – Home Screen",
+            "description": "## Home Screen GraphQL APIs\n\nEndpoint: `POST {{BASE_URL}}/api/graphql`\n\nAll requests send the GraphQL query as JSON: `{ \"query\": \"...\", \"variables\": {...} }`\n\nAuthentication is enforced server-side via the `@guard(with: [\"api\"])` directive.\nPass your JWT in the `Authorization: Bearer {{AUTH_TOKEN}}` header (inherited from collection).",
+            "item": [
+                {
+                    "name": "Home – Full Home Screen",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"query\": \"{ homeScreen { bannerSection { ctaLabel ctaAction banners { id image title redirectType redirectValue displayOrder } } gendersAndCategories { id name slug image subCategories { id name slug image productCount } } bestSellingProducts { productId listingId productName sku mrp sellingPrice actualPrice discount rating isFavorite cartId images categoryName brandName hastags seller { sellerName image distance rating } } trendingProducts { productId productName sellingPrice rating isFavorite images categoryName seller { sellerName image } } newAndNoteworthy { productId productName sellingPrice rating isFavorite images categoryName } accessoriesProducts { productId productName sellingPrice rating isFavorite images categoryName } recentlyViewedProducts { productId productName sellingPrice rating images } budgetCategories { id name slug image minPrice maxPrice productCount } quickBuySection { data { productId productName sellingPrice rating isFavorite cartId images seller { sellerName image } } paginatorInfo { total currentPage lastPage perPage hasMorePages } } } }\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/graphql",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "graphql"
+                            ]
+                        },
+                        "description": "## Full Home Screen Query\n\nFetches **all** sections in a single HTTP round-trip. Designed for app launch — render everything from one response.\n\n### Sections returned\n- `bannerSection` — promotional banners with CTA\n- `gendersAndCategories` — Women / Men / Kids / All with sub-categories\n- `bestSellingProducts` — top 10 by sales\n- `trendingProducts` — top 10 by wishlist count\n- `newAndNoteworthy` — latest 10 listings\n- `accessoriesProducts` — 10 from accessory categories\n- `recentlyViewedProducts` — last 10 viewed by this user\n- `budgetCategories` — 8 categories with products ₹99–₹500\n- `quickBuySection` — first 10 quick-buy products + pagination info\n\n### Sample Response\n```json\n{\n  \"data\": {\n    \"homeScreen\": {\n      \"bannerSection\": {\n        \"ctaLabel\": \"View Offers\",\n        \"ctaAction\": \"VIEW_OFFERS\",\n        \"banners\": [\n          {\n            \"id\": \"1\",\n            \"image\": \"http://localhost/nileShopping/public/uploads/banners/banner_1.jpg\",\n            \"title\": \"Season Sale – Up to 50% Off\",\n            \"redirectType\": \"url\",\n            \"redirectValue\": \"/offers/season-sale\",\n            \"displayOrder\": 1\n          }\n        ]\n      },\n      \"bestSellingProducts\": [\n        {\n          \"productId\": \"3\",\n          \"productName\": \"Premium Cotton Kurta\",\n          \"sellingPrice\": 499.00,\n          \"mrp\": 799.00,\n          \"rating\": 4.2,\n          \"isFavorite\": false,\n          \"images\": [\"http://localhost/nileShopping/public/uploads/listings/5/front.jpg\"]\n        }\n      ]\n    }\n  }\n}\n```"
+                    }
+                },
+                {
+                    "name": "Home – Best Selling Products (View More)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"query\": \"query SectionProducts($section: SectionType!, $first: Int!, $page: Int!) { sectionProducts(section: $section, first: $first, page: $page) { data { productId productName sku mrp sellingPrice actualPrice discount rating isFavorite cartId images categoryName brandName hastags seller { sellerName image distance rating } } paginatorInfo { total count currentPage lastPage perPage firstItem lastItem hasMorePages } } }\",\n  \"variables\": {\n    \"section\": \"BEST_SELLING\",\n    \"first\": 10,\n    \"page\": 1\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/graphql",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "graphql"
+                            ]
+                        },
+                        "description": "## Best Selling Products – View More\n\nPaginated listing. Change `page` to load next results. Ordered by completed order count descending.\n\n### Variables\n| Variable | Type | Description |\n|---|---|---|\n| `section` | `SectionType!` | Always `BEST_SELLING` for this request |\n| `first` | `Int!` | Items per page (default 10) |\n| `page` | `Int!` | Page number (1-based) |\n\n### Pagination\nUse `paginatorInfo.hasMorePages` to decide whether to show the \"Load More\" button.\n`paginatorInfo.lastPage` gives the total number of pages."
+                    }
+                },
+                {
+                    "name": "Home – Trending Products (View More)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"query\": \"query SectionProducts($section: SectionType!, $first: Int!, $page: Int!) { sectionProducts(section: $section, first: $first, page: $page) { data { productId productName sellingPrice rating isFavorite images categoryName seller { sellerName image } } paginatorInfo { total currentPage lastPage hasMorePages } } }\",\n  \"variables\": {\n    \"section\": \"TRENDING\",\n    \"first\": 10,\n    \"page\": 1\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/graphql",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "graphql"
+                            ]
+                        },
+                        "description": "Paginated trending products ordered by wishlist count + recency."
+                    }
+                },
+                {
+                    "name": "Home – New & Noteworthy (View More)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"query\": \"query SectionProducts($section: SectionType!, $first: Int!, $page: Int!) { sectionProducts(section: $section, first: $first, page: $page) { data { productId productName sellingPrice rating isFavorite images categoryName } paginatorInfo { total currentPage lastPage hasMorePages } } }\",\n  \"variables\": {\n    \"section\": \"NEW_NOTEWORTHY\",\n    \"first\": 10,\n    \"page\": 1\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/graphql",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "graphql"
+                            ]
+                        },
+                        "description": "Paginated newest products ordered by `listings.created_at` descending."
+                    }
+                },
+                {
+                    "name": "Home – Accessories Products (View More)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"query\": \"query SectionProducts($section: SectionType!, $first: Int!, $page: Int!) { sectionProducts(section: $section, first: $first, page: $page) { data { productId productName sellingPrice rating isFavorite images categoryName } paginatorInfo { total currentPage lastPage hasMorePages } } }\",\n  \"variables\": {\n    \"section\": \"ACCESSORIES\",\n    \"first\": 10,\n    \"page\": 1\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/graphql",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "graphql"
+                            ]
+                        },
+                        "description": "Products from categories whose name or slug contains 'accessor'."
+                    }
+                },
+                {
+                    "name": "Home – Recently Viewed (View More)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"query\": \"query SectionProducts($section: SectionType!, $first: Int!, $page: Int!) { sectionProducts(section: $section, first: $first, page: $page) { data { productId productName sellingPrice rating images categoryName } paginatorInfo { total currentPage lastPage hasMorePages } } }\",\n  \"variables\": {\n    \"section\": \"RECENTLY_VIEWED\",\n    \"first\": 10,\n    \"page\": 1\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/graphql",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "graphql"
+                            ]
+                        },
+                        "description": "Products viewed by the authenticated user, ordered by most-recently-viewed. Populates automatically when the user opens a product detail via `GET /api/product/detail`."
+                    }
+                },
+                {
+                    "name": "Home – Budget Products (View More)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"query\": \"query SectionProducts($section: SectionType!, $first: Int!, $page: Int!) { sectionProducts(section: $section, first: $first, page: $page) { data { productId productName sellingPrice mrp rating isFavorite images categoryName } paginatorInfo { total currentPage lastPage hasMorePages } } }\",\n  \"variables\": {\n    \"section\": \"BUDGET_CATEGORIES_PRODUCTS\",\n    \"first\": 10,\n    \"page\": 1\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/graphql",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "graphql"
+                            ]
+                        },
+                        "description": "All products priced between ₹99 and ₹500, paginated."
+                    }
+                },
+                {
+                    "name": "Home – Category Products (View More)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"query\": \"query SectionProducts($section: SectionType!, $first: Int!, $page: Int!, $categoryId: Int) { sectionProducts(section: $section, first: $first, page: $page, categoryId: $categoryId) { data { productId productName sellingPrice rating isFavorite images categoryName } paginatorInfo { total currentPage lastPage hasMorePages } } }\",\n  \"variables\": {\n    \"section\": \"CATEGORY_PRODUCTS\",\n    \"first\": 10,\n    \"page\": 1,\n    \"categoryId\": 5\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/graphql",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "graphql"
+                            ]
+                        },
+                        "description": "Paginated products by specific category ID. Used when user taps 'View All' on a sub-category chip.\n\n**Note**: `categoryId` is the `menus.id` value returned from the `gendersAndCategories` section."
+                    }
+                },
+                {
+                    "name": "Home – Quick Buy (Load More In-Place)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"query\": \"query QuickBuy($first: Int!, $page: Int!) { quickBuyProducts(first: $first, page: $page) { data { productId productName sku sellingPrice mrp rating isFavorite cartId images categoryName seller { sellerName image } } paginatorInfo { total count currentPage lastPage perPage hasMorePages } } }\",\n  \"variables\": {\n    \"first\": 10,\n    \"page\": 1\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/graphql",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "graphql"
+                            ]
+                        },
+                        "description": "## Quick Buy – In-Place Pagination\n\nDoes **not** navigate to a new page. The mobile app appends new items to the existing Quick Buy list on the home screen when the user taps 'View More'.\n\nIncrement `page` by 1 on each 'View More' tap. Stop showing the button when `paginatorInfo.hasMorePages = false`.\n\n### Infinite Scroll Pattern (Flutter)\n```dart\nint _page = 1;\nbool _hasMore = true;\nList<Product> _products = [];\n\nvoid loadMore() async {\n  if (!_hasMore) return;\n  final result = await graphqlClient.query(\n    QueryOptions(\n      document: QUICK_BUY_QUERY,\n      variables: {'first': 10, 'page': _page},\n    ),\n  );\n  final data = result.data!['quickBuyProducts'];\n  _products.addAll(parseProducts(data['data']));\n  _hasMore = data['paginatorInfo']['hasMorePages'];\n  _page++;\n}\n```"
+                    }
+                },
+                {
+                    "name": "Home – Offer Banners",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"query\": \"{ homeScreen { bannerSection { ctaLabel ctaAction banners { id image title redirectType redirectValue displayOrder isActive } } } }\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/graphql",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "graphql"
+                            ]
+                        },
+                        "description": "## Offer Banners\n\nFetches only the banner section from the home screen response. Efficient for banner-only refreshes.\n\n### Redirect Handling (client-side)\n```js\nswitch (banner.redirectType) {\n  case 'url':      navigate(banner.redirectValue); break;\n  case 'category': navigate('/category/' + banner.redirectValue); break;\n  case 'product':  navigate('/product/' + banner.redirectValue); break;\n}\n```\n\n### Sample Response\n```json\n{\n  \"data\": {\n    \"homeScreen\": {\n      \"bannerSection\": {\n        \"ctaLabel\": \"View Offers\",\n        \"ctaAction\": \"VIEW_OFFERS\",\n        \"banners\": [\n          { \"id\": \"1\", \"image\": \"https://.../banner_1.jpg\", \"title\": \"Season Sale\", \"redirectType\": \"url\", \"redirectValue\": \"/offers/season-sale\", \"displayOrder\": 1, \"isActive\": true },\n          { \"id\": \"2\", \"image\": \"https://.../banner_2.jpg\", \"title\": \"Women's Collection\", \"redirectType\": \"category\", \"redirectValue\": \"women\", \"displayOrder\": 2, \"isActive\": true },\n          { \"id\": \"3\", \"image\": \"https://.../banner_3.jpg\", \"title\": \"Kids Essentials\", \"redirectType\": \"category\", \"redirectValue\": \"kids\", \"displayOrder\": 3, \"isActive\": true }\n        ]\n      }\n    }\n  }\n}\n```"
+                    }
+                },
+                {
+                    "name": "[Auth Error] Unauthenticated Request",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"query\": \"{ homeScreen { bestSellingProducts { productId } } }\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/graphql",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "graphql"
+                            ]
+                        },
+                        "description": "Verifies that unauthenticated requests are rejected. Expected response:\n```json\n{\n  \"errors\": [{\n    \"message\": \"Unauthenticated.\",\n    \"extensions\": { \"category\": \"authentication\" }\n  }]\n}\n```"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Category APIs",
+            "description": "REST endpoints for category browsing.",
+            "item": [
+                {
+                    "name": "List Top-Level Categories",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/category/list",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "category",
+                                "list"
+                            ],
+                            "query": [
+                                {
+                                    "key": "category_id",
+                                    "value": "",
+                                    "description": "optional — drill into a specific category",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "Returns Women / Men / Kids / All top-level categories with sub-categories and product counts."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Product APIs",
+            "description": "REST product endpoints.",
+            "item": [
+                {
+                    "name": "Product Detail",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/product/detail?product_id=1",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "product",
+                                "detail"
+                            ],
+                            "query": [
+                                {
+                                    "key": "product_id",
+                                    "value": "1",
+                                    "description": "required — listingdatas.id"
+                                }
+                            ]
+                        },
+                        "description": "Returns full product details. Also **auto-tracks** the view in `recently_viewed` — this is what populates the `recentlyViewedProducts` GraphQL section."
+                    }
+                },
+                {
+                    "name": "List Products by Category",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/category/product/list?category_id=1&offset=0&limit=10",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "category",
+                                "product",
+                                "list"
+                            ],
+                            "query": [
+                                {
+                                    "key": "category_id",
+                                    "value": "1",
+                                    "description": "required"
+                                },
+                                {
+                                    "key": "offset",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Banner APIs",
+            "description": "Banners are served via GraphQL. Use the homeScreen → bannerSection query for production. This folder has a focused banner-only query.",
+            "item": [
+                {
+                    "name": "Banners Only (GraphQL)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"query\": \"{ homeScreen { bannerSection { ctaLabel ctaAction banners { id image title redirectType redirectValue displayOrder isActive } } } }\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/graphql",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "graphql"
+                            ]
+                        },
+                        "description": "Focused query returning only banners. Useful for a banner carousel refresh without re-fetching other sections."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Recently Viewed APIs",
+            "description": "Recently viewed products are tracked automatically when users open product detail. Query them via GraphQL.",
+            "item": [
+                {
+                    "name": "Recently Viewed – GraphQL (Page 1)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"query\": \"query RecentlyViewed($first: Int!, $page: Int!) { sectionProducts(section: RECENTLY_VIEWED, first: $first, page: $page) { data { productId productName sellingPrice mrp rating isFavorite cartId images categoryName brandName seller { sellerName image } } paginatorInfo { total currentPage lastPage hasMorePages } } }\",\n  \"variables\": { \"first\": 10, \"page\": 1 }\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/graphql",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "graphql"
+                            ]
+                        },
+                        "description": "Returns the last 10 products viewed by the authenticated user, most-recent first.\n\n**How views are tracked**: Calling `GET /api/product/detail?product_id=X` automatically upserts a row in `recently_viewed`. No separate tracking call required."
+                    }
+                },
+                {
+                    "name": "Trigger a Product View (to populate recently viewed)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/product/detail?product_id=1",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "product",
+                                "detail"
+                            ],
+                            "query": [
+                                {
+                                    "key": "product_id",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Open any product detail to add it to `recently_viewed`. Then call the GraphQL Recently Viewed query to confirm the section populates."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "User Profile & Address",
+            "item": [
+                {
+                    "name": "Edit Profile",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "name",
+                                    "value": "John",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "lastname",
+                                    "value": "Doe",
+                                    "type": "text",
+                                    "description": "optional"
+                                },
+                                {
+                                    "key": "email",
+                                    "value": "john.doe@example.com",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "gender",
+                                    "value": "Male",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "dob",
+                                    "value": "1995-04-12",
+                                    "type": "text",
+                                    "description": "optional Y-m-d"
+                                },
+                                {
+                                    "key": "image",
+                                    "type": "file",
+                                    "src": "",
+                                    "description": "optional profile photo"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/user/profile/edit",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "user",
+                                "profile",
+                                "edit"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "List Addresses",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/user/address?user_id=1",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "user",
+                                "address"
+                            ],
+                            "query": [
+                                {
+                                    "key": "user_id",
+                                    "value": "1",
+                                    "description": "required"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Add Address",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"title\": \"Home\",\n  \"line1\": \"42 MG Road\",\n  \"line2\": \"Near City Mall\",\n  \"city\": \"Bangalore\",\n  \"postal\": \"560001\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/user/add/address",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "user",
+                                "add",
+                                "address"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Make Default Address",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{ \"address_id\": 1 }"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/user/address/default",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "user",
+                                "address",
+                                "default"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Wishlist",
+            "item": [
+                {
+                    "name": "Toggle Wishlist",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{ \"listing_id\": 1 }"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/add/product/whishlist",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "add",
+                                "product",
+                                "whishlist"
+                            ]
+                        },
+                        "description": "Toggles: adds if not in wishlist, removes if already there."
+                    }
+                },
+                {
+                    "name": "List Wishlist",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/whishlist/list?offset=0&limit=10",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "whishlist",
+                                "list"
+                            ],
+                            "query": [
+                                {
+                                    "key": "offset",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Cart & Orders",
+            "item": [
+                {
+                    "name": "Add to Cart",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"product_id\": 1,\n  \"quantity\": 1,\n  \"delivery_type\": 1,\n  \"product_attribute\": null,\n  \"isCheckout\": false\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/add/cart",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "add",
+                                "cart"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "List Cart",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/cart/list?offset=0&limit=10",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "cart",
+                                "list"
+                            ],
+                            "query": [
+                                {
+                                    "key": "offset",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete from Cart",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/cart/delete?cart_id=1",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "cart",
+                                "delete"
+                            ],
+                            "query": [
+                                {
+                                    "key": "cart_id",
+                                    "value": "1",
+                                    "description": "required"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Checkout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"cart_update\": \"[]\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/checkout",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "checkout"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Place Order",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"cart_id\": \"1,2\",\n  \"address_id\": 1,\n  \"payment_mode\": 1,\n  \"total_price\": \"999.00\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/order",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "order"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Order History",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/order/history?offset=0&limit=10",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "order",
+                                "history"
+                            ],
+                            "query": [
+                                {
+                                    "key": "offset",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Cancel Order",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{ \"order_id\": 123 }"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/order/cancel",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "order",
+                                "cancel"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Submit Review",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"order_id\": 1,\n  \"product_id\": 1,\n  \"rating\": 4.5,\n  \"review\": \"Great quality product!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/order/review",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "order",
+                                "review"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

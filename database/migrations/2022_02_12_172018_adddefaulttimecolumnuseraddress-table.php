@@ -14,8 +14,12 @@ class AdddefaulttimecolumnuseraddressTable extends Migration
     public function up()
     {
         Schema::table('user_address', function (Blueprint $table) {
-            $table->timestamp('created_at')->useCurrent()->after('postal');
-            $table->timestamp('updated_at')->nullable()->after('created_at');
+            if (! Schema::hasColumn('user_address', 'created_at')) {
+                $table->timestamp('created_at')->useCurrent()->after('postal');
+            }
+            if (! Schema::hasColumn('user_address', 'updated_at')) {
+                $table->timestamp('updated_at')->nullable()->after('created_at');
+            }
         });
     }
 

@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 //use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ResourceTest extends TestCase
 {
-    use DatabaseMigrations;
+    use DatabaseTruncation;
    // use WithFaker;
 
    public function helperCreateExample($name){

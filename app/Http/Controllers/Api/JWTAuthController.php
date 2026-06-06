@@ -53,7 +53,10 @@ class JWTAuthController extends Controller
             ]);
 
             if($req->fails()){
-                return response()->json(['message' => 'Validation failed', 'data' => array()], 400);
+                return response()->json([
+                    'message' => 'Validation failed', 
+                    'errors' => $req->errors()
+                ], 400);
             }
             $userData = User::where('phone', $request->phone)->whereNull('deleted_at')->first();
             if($userData) {

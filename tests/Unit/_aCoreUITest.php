@@ -6,12 +6,13 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
 
 class _aCoreUITest extends TestCase
 {
-    use DatabaseMigrations;
+    use DatabaseTruncation;
 
     public function setUp() :void {
         parent::setUp();

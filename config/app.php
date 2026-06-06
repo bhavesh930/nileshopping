@@ -178,6 +178,10 @@ return [
         Spatie\Permission\PermissionServiceProvider::class,
 
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+
+        Nuwave\Lighthouse\LighthouseServiceProvider::class,
+        Nuwave\Lighthouse\Auth\AuthServiceProvider::class,
+        Nuwave\Lighthouse\Pagination\PaginationServiceProvider::class,
     ],
 
     /*

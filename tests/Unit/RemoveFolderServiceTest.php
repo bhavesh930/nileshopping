@@ -15,7 +15,7 @@ use App\Services\RemoveFolderService;
 
 class RemoveFolderServiceTest extends TestCase
 {
-    use DatabaseMigrations;
+    use RefreshDatabase;
     
     public function testFindFolderChildrens(){
         $folder = new Folder();

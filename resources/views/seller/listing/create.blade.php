@@ -957,6 +957,7 @@
                     
                     <form id="sizeChartForm">
                         @csrf
+                        <div id="sizeChartErrors" class="alert alert-danger" style="display:none;"></div>
                         <input type="hidden" name="listing_id" value="<?=$listing_id;?>" />
                         <div class="modal-body">
                             <div class="fade-in">
@@ -1425,12 +1426,27 @@
     });
 
     $(document).on('click', '.sizeSent', function(){
+        $('#sizeChartErrors').hide().empty();
         $.ajax({
             url:"{{route('storeListingSizeChartData')}}",
             type: "POST",
             data: $('#sizeChartForm').serialize(),
             success: function(result){
                 $('#productSizeChartModal').find('.close').trigger('click');
+            },
+            error: function(xhr){
+                if(xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors){
+                    var html = '<ul class="mb-0">';
+                    $.each(xhr.responseJSON.errors, function(field, messages){
+                        $.each(messages, function(i, msg){
+                            html += '<li>' + $('<div>').text(msg).html() + '</li>';
+                        });
+                    });
+                    html += '</ul>';
+                    $('#sizeChartErrors').html(html).show();
+                } else {
+                    $('#sizeChartErrors').text('Something went wrong. Please try again.').show();
+                }
             }
         });
         return false;

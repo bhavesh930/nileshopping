@@ -15,7 +15,7 @@ use App\Models\User;
 
 class BreadTest extends TestCase
 {
-    use DatabaseMigrations;
+    use RefreshDatabase;
     use WithFaker;
 
     public function helperGetTableColumns($tableName){
@@ -185,7 +185,8 @@ class BreadTest extends TestCase
             $adminRole = Role::where('name',  '=', 'admin')->first();
         }
         $user->assignRole($adminRole);
-        $response = $this->actingAs($user)->get('/bread/1/edit');
+        $form = Form::first();
+        $response = $this->actingAs($user)->get('/bread/' . $form->id . '/edit');
         $response->assertStatus(200);
         $response->assertSee('Edit BREAD');
         $response->assertSee('Form name');
@@ -201,20 +202,21 @@ class BreadTest extends TestCase
             $adminRole = Role::where('name',  '=', 'admin')->first();
         }
         $user->assignRole($adminRole);
+        $form = Form::first();
         $postData = array(
             'model'     => 'example',
             'marker'    => 'createForm',
             'name'      => 'Updated Form Name',
             'pagination'=> '7',
         );
-        $columns = FormField::where('form_id', '=', 1)->get();
+        $columns = FormField::where('form_id', '=', $form->id)->get();
         foreach($columns as $column){
             $postData[$column->id . '_name'] = 'updated name ' . $column->column_name;
             $postData[$column->id . '_field_type'] = 'updated';
             $postData[$column->id . '_relation_table'] = '';
             $postData[$column->id . '_relation_column'] = '';
         }
-        $response = $this->actingAs($user)->put('/bread/1', $postData);
+        $response = $this->actingAs($user)->put('/bread/' . $form->id, $postData);
         $this->assertDatabaseHas('form',[
             'name' => 'Updated Form Name',
             'pagination' => '7',
@@ -246,7 +248,8 @@ class BreadTest extends TestCase
             $adminRole = Role::where('name',  '=', 'admin')->first();
         }
         $user->assignRole($adminRole);
-        $response = $this->actingAs($user)->get('/bread/1');
+        $form = Form::first();
+        $response = $this->actingAs($user)->get('/bread/' . $form->id);
         $response->assertStatus(200);
         $response->assertSee('Show BREAD');
         $response->assertSee('Form name');
@@ -263,7 +266,8 @@ class BreadTest extends TestCase
             $adminRole = Role::where('name',  '=', 'admin')->first();
         }
         $user->assignRole($adminRole);
-        $response = $this->actingAs($user)->delete('/bread/1');
+        $form = Form::first();
+        $response = $this->actingAs($user)->delete('/bread/' . $form->id);
         $response->assertStatus(200);
         $response->assertSee('Are you sure?');
     }
@@ -278,7 +282,7 @@ class BreadTest extends TestCase
         }
         $user->assignRole($adminRole);
         $form = Form::first();
-        $response = $this->actingAs($user)->delete('/bread/1', [ 'marker' => 'true']);
+        $response = $this->actingAs($user)->delete('/bread/' . $form->id, [ 'marker' => 'true']);
         $this->assertDatabaseMissing('form',['id' =>  $form->id ]);
         $this->assertDatabaseMissing('form_field',['form_id' => $form->id ]);
     }

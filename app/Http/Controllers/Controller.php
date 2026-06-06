@@ -1,16 +1,17 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 
 class Controller extends BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+    use AuthorizesRequests, ValidatesRequests;
 
     protected function uploadImage($image, $folder){
-        try{ 
+        try{
         	$this->createDirectoryMultiple($folder);
 	        $imagename = time().rand('10000','99990').'.'.$image->getClientOriginalExtension();
 	        $destinationPath = public_path($folder);

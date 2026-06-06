@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Spatie\Permission\Models\Role;
@@ -12,7 +13,7 @@ use App\Models\User;
 
 class MenuTest extends TestCase
 {
-    use DatabaseMigrations;
+    use DatabaseTruncation;
 
 
     public function testMenuIndex(){

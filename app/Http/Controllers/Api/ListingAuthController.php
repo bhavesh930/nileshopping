@@ -188,6 +188,28 @@ class ListingAuthController extends Controller
             $listingdata->seller = $sellerData;
             $listingdata->cart_detail = $cartQuery;
 
+            // Track recently viewed (feeds the homeScreen recentlyViewedProducts section)
+            $currentUserId = auth('api')->id();
+            if ($currentUserId && $listingdata->listing_id) {
+                $rvExists = DB::table('recently_viewed')
+                    ->where('user_id', $currentUserId)
+                    ->where('listing_id', $listingdata->listing_id)
+                    ->exists();
+
+                if ($rvExists) {
+                    DB::table('recently_viewed')
+                        ->where('user_id', $currentUserId)
+                        ->where('listing_id', $listingdata->listing_id)
+                        ->update(['updated_at' => now()]);
+                } else {
+                    DB::table('recently_viewed')->insert([
+                        'user_id'    => $currentUserId,
+                        'listing_id' => $listingdata->listing_id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
 
             return response()->json([
                 'message' => 'Listed successfully',

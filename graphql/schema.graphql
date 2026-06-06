@@ -1,0 +1,238 @@
+"""
+NileShopping Mobile – GraphQL Schema
+All queries require JWT authentication via the `api` guard.
+"""
+
+type Query {
+    """
+    Returns all home screen sections in a single round-trip.
+    The mobile app calls this once on app launch.
+    """
+    homeScreen: HomeScreen!
+        @guard(with: ["api"])
+        @field(resolver: "App\\GraphQL\\Queries\\HomeScreenResolver")
+
+    """
+    View More: returns a paginated list for any named home screen section.
+    Use this when the user taps "View All" on a section.
+    """
+    sectionProducts(
+        section: SectionType!
+        "Number of items per page"
+        first: Int! = 10
+        "1-based page number"
+        page: Int! = 1
+        "Optional: filter by category ID (used with CATEGORY_PRODUCTS)"
+        categoryId: Int
+    ): SectionProductPaginator!
+        @guard(with: ["api"])
+        @field(resolver: "App\\GraphQL\\Queries\\SectionProductsResolver")
+
+    """
+    Quick Buy: in-place paginated loading on the home screen.
+    Clicking 'View More' in the Quick Buy section calls this with the next page.
+    Does NOT navigate away from the home screen.
+    """
+    quickBuyProducts(
+        "Number of items per page"
+        first: Int! = 10
+        "1-based page number"
+        page: Int! = 1
+    ): ProductPaginator!
+        @guard(with: ["api"])
+        @field(resolver: "App\\GraphQL\\Queries\\QuickBuyResolver")
+}
+
+# ─────────────────────────────────────────────
+# Enums
+# ─────────────────────────────────────────────
+
+"""
+Identifies which home screen section to paginate in a View More request.
+"""
+enum SectionType {
+    BEST_SELLING
+    TRENDING
+    NEW_NOTEWORTHY
+    ACCESSORIES
+    RECENTLY_VIEWED
+    BUDGET_CATEGORIES_PRODUCTS
+    CATEGORY_PRODUCTS
+}
+
+# ─────────────────────────────────────────────
+# Root Home Screen type
+# ─────────────────────────────────────────────
+
+"""
+The complete home screen payload returned in a single query.
+"""
+type HomeScreen {
+    "Promotional banners with a 'View Offers' CTA above them."
+    bannerSection: BannerSection!
+
+    "Top-level genders (Women / Men / Kids / All) with their sub-categories."
+    gendersAndCategories: [Gender!]!
+
+    "Top 10 best-selling products ordered by sales volume."
+    bestSellingProducts: [Product!]!
+
+    "Top 10 trending products ordered by wishlist additions."
+    trendingProducts: [Product!]!
+
+    "Latest 10 newly listed products."
+    newAndNoteworthy: [Product!]!
+
+    "10 products from accessory-related categories."
+    accessoriesProducts: [Product!]!
+
+    "Last 10 products viewed by the authenticated user."
+    recentlyViewedProducts: [Product!]!
+
+    "8 categories that contain products priced between ₹99 and ₹500."
+    budgetCategories: [BudgetCategory!]!
+
+    "First 10 quick-buy products with in-place pagination info."
+    quickBuySection: QuickBuySection!
+}
+
+# ─────────────────────────────────────────────
+# Banner types
+# ─────────────────────────────────────────────
+
+type BannerSection {
+    "Label for the CTA button above the banners."
+    ctaLabel: String!
+
+    "Action identifier for the CTA (e.g. VIEW_OFFERS)."
+    ctaAction: String!
+
+    "Up to 3 active promotional banners ordered by display_order."
+    banners: [Banner!]!
+}
+
+type Banner {
+    id:            ID!
+    image:         String!
+    title:         String
+    "One of: url | category | product"
+    redirectType:  String!
+    "URL, category slug, or product ID depending on redirectType."
+    redirectValue: String!
+    displayOrder:  Int!
+    isActive:      Boolean!
+}
+
+# ─────────────────────────────────────────────
+# Category / Gender types
+# ─────────────────────────────────────────────
+
+type Gender {
+    id:            ID!
+    name:          String!
+    slug:          String!
+    image:         String
+    subCategories: [SubCategory!]!
+}
+
+type SubCategory {
+    id:           ID!
+    name:         String!
+    slug:         String!
+    image:        String
+    "Number of active products in this sub-category."
+    productCount: Int!
+}
+
+type BudgetCategory {
+    id:           ID!
+    name:         String!
+    slug:         String!
+    image:        String
+    "Lowest selling_price of products in this category within the budget range."
+    minPrice:     Float!
+    "Highest selling_price of products in this category within the budget range."
+    maxPrice:     Float!
+    "Number of active products priced between ₹99 and ₹500."
+    productCount: Int!
+}
+
+# ─────────────────────────────────────────────
+# Product types
+# ─────────────────────────────────────────────
+
+type Product {
+    "listingdatas.id"
+    productId:    ID!
+    "listings.id"
+    listingId:    ID!
+    productName:  String!
+    sku:          String
+    mrp:          Float!
+    sellingPrice: Float!
+    actualPrice:  Float!
+    discount:     Float!
+    rating:       Float!
+    "Whether the authenticated user has wishlisted this product."
+    isFavorite:   Boolean!
+    "carts.id if this product is in the user's active cart, else 0."
+    cartId:       ID
+    images:       [String!]!
+    categoryName: String
+    brandName:    String
+    hastags:      String
+    seller:       Seller!
+}
+
+type Seller {
+    sellerName: String!
+    image:      String!
+    distance:   Float!
+    rating:     Float!
+}
+
+# ─────────────────────────────────────────────
+# Quick Buy section (in-place pagination)
+# ─────────────────────────────────────────────
+
+"""
+Returned inside homeScreen; first 10 items + pagination metadata so the
+mobile app knows whether to show the 'View More' button.
+"""
+type QuickBuySection {
+    data:          [Product!]!
+    paginatorInfo: PaginatorInfo!
+}
+
+# ─────────────────────────────────────────────
+# Paginator types (View More)
+# ─────────────────────────────────────────────
+
+type ProductPaginator {
+    data:          [Product!]!
+    paginatorInfo: PaginatorInfo!
+}
+
+type SectionProductPaginator {
+    data:          [Product!]!
+    paginatorInfo: PaginatorInfo!
+}
+
+type PaginatorInfo {
+    "Total number of items across all pages."
+    total:        Int!
+    "Number of items on the current page."
+    count:        Int!
+    "Current page number (1-based)."
+    currentPage:  Int!
+    "Last available page number."
+    lastPage:     Int!
+    "Items per page."
+    perPage:      Int!
+    "The index of the first item on this page."
+    firstItem:    Int
+    "The index of the last item on this page."
+    lastItem:     Int
+    "Whether there are more pages after the current one."
+    hasMorePages: Boolean!
+}

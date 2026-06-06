@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 //use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -18,14 +19,14 @@ use Illuminate\Support\Facades\Storage;
 
 class ResourceServiceTest extends TestCase
 {
-    use DatabaseMigrations;
+    use DatabaseTruncation;
    // use WithFaker;
 
     public function helperCreateExample($name){
         $example = new Example();
         $example->name = $name;
         $example->description = 'Lorem ipsum dolor';
-        $example->status_id = 1;
+        $example->status_id = Status::first()->id;
         $example->save();
         return $example->id;
     }
@@ -77,22 +78,23 @@ class ResourceServiceTest extends TestCase
         $folder = new Folder();
         $folder->name = 'Resource';
         $folder->resource = 1;
-        $folder->save(); 
+        $folder->save();
         $resourceService = new ResourceService();
         $file = UploadedFile::fake()->image('file.jpg');
         $request = array('column_name' => $file);
         $result = $resourceService->addMedia($request, 'column_name');
-        $expected = '1';
-        $this->assertSame($expected, $result);
+        $this->assertNotEmpty($result);
         $this->assertDatabaseHas('media',[
+            'id' => $result,
             'name' => 'file.jpg',
         ]);
+        return $result;
     }
 
     public function testGetMediaUrl(){
-        $this->testAddMedia();
+        $mediaId = $this->testAddMedia();
         $resourceService = new ResourceService();
-        $result = $resourceService->getMediaUrl( 1 );
+        $result = $resourceService->getMediaUrl( $mediaId );
         if(strpos($result, 'file.jpg') !== false){
             $result = true;
         }else{
@@ -136,29 +138,31 @@ class ResourceServiceTest extends TestCase
 
     public function testGetIndexDatas(){
         $formId = $this->helperCreateForm('Form name');
-        $this->helperCreateExample('Lorem');
-        $this->helperCreateExample('ipsum');
+        $exampleId1 = $this->helperCreateExample('Lorem');
+        $exampleId2 = $this->helperCreateExample('ipsum');
+        $statusId = Status::first()->id;
         $resourceService = new ResourceService();
         $result = $resourceService->getIndexDatas( $formId );
+        // PHP 8.1+ native PDO returns int columns as int (was string under PHP 7).
         $expectedEnableButtons = array(
-            'read' => '1',
-            'edit' => '1',
-            'add' => '1',
-            'delete' => '1',
+            'read' => 1,
+            'edit' => 1,
+            'add' => 1,
+            'delete' => 1,
         );
         $expectedData = array(
             array(
-                'id' => '1',
+                'id' => $exampleId1,
                 'name' => 'Lorem',
                 'description' => 'Lorem ipsum dolor',
-                'status_id' => '1',
+                'status_id' => $statusId,
                 'relation_status_id' => 'Lorem ipsum dolor'
             ),
             array(
-                'id' => '2',
+                'id' => $exampleId2,
                 'name' => 'ipsum',
                 'description' => 'Lorem ipsum dolor',
-                'status_id' => '1',
+                'status_id' => $statusId,
                 'relation_status_id' => 'Lorem ipsum dolor'
             ),
         );
@@ -245,6 +249,7 @@ class ResourceServiceTest extends TestCase
     public function testGetColumnsForEdit(){
         $formId = $this->helperCreateForm('Form name');
         $exampleId = $this->helperCreateExample('test');
+        $statusId = Status::first()->id;
         $resourceService = new ResourceService();
         $result = $resourceService->getColumnsForEdit('example', $formId, $exampleId);
         $expected = array(
@@ -264,7 +269,7 @@ class ResourceServiceTest extends TestCase
                 'type' => 'text',
                 'name' => 'status_id',
                 'column_name' => 'status_id',
-                'value' => '1',
+                'value' => $statusId,
             )
         );
         $this->assertSame($expected, $result);
