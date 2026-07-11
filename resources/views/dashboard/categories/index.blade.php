@@ -1,36 +1,62 @@
 @extends('dashboard.base')
 
 <style type="text/css">
-
-  td:nth-child(5) {
-
-      width: 165px;
-
+  .category-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
   }
 
-  tr td:nth-child(5) a.btn-primary {
-
-      width: 50px;
-
-      display: inline-block;
-
+  .category-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
   }
 
-  tr td:nth-child(5) a.btn-info {
-
-      width: 84px;
-
-      display: inline-block;
-
-      margin-top: 0;
-
+  .category-breadcrumb a,
+  .category-breadcrumb span {
+      font-size: 14px;
   }
 
+  .category-breadcrumb .separator {
+      color: #8a93a2;
+  }
+
+  .category-name {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+  }
+
+  .category-name strong {
+      font-size: 15px;
+  }
+
+  .category-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      min-width: 250px;
+  }
+
+  .category-actions .btn {
+      margin: 0;
+  }
+
+  .category-empty {
+      padding: 36px 16px;
+      text-align: center;
+      color: #636f83;
+  }
 </style>
 
 @section('content')
-
-
 
         <div class="container-fluid">
 
@@ -44,17 +70,59 @@
 
                     <div class="card-header">
 
-                      <i class="fa fa-align-justify"></i>{{ __('Category') }}</div>
+                      <i class="fa fa-align-justify"></i>
+                      {{ $parentCategory ? __('Child Categories') : __('Categories') }}
+                    </div>
 
                     <div class="card-body">
 
-                        <div class="row"> 
+                        @if (Session::has('success'))
+                          <div class="alert alert-success alert-dismissible fade show" role="alert">
+                              {{ Session::get('success') }}
+                              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                              </button>
+                          </div>
+                        @endif
 
-                          <a href="{{ route('category.create') }}" class="btn btn-primary m-2">{{ __('Add Category') }}</a>
-
+                        <div class="category-breadcrumb">
+                          <a href="{{ route('category.index') }}">{{ __('Categories') }}</a>
+                          @foreach($breadcrumbs as $breadcrumb)
+                            <span class="separator">/</span>
+                            @if(!$loop->last)
+                              <a href="{{ route('category.index', ['parent_id' => $breadcrumb->id]) }}">{{ $breadcrumb->name }}</a>
+                            @else
+                              <span>{{ $breadcrumb->name }}</span>
+                            @endif
+                          @endforeach
                         </div>
 
-                        <br>
+                        <div class="category-toolbar">
+                          <div>
+                            @if($parentCategory)
+                              <h4 class="mb-1">{{ $parentCategory->name }}</h4>
+                              <p class="text-muted mb-0">{{ __('Manage direct child categories under this parent.') }}</p>
+                            @else
+                              <h4 class="mb-1">{{ __('Parent Categories') }}</h4>
+                              <p class="text-muted mb-0">{{ __('Start from a parent category, then drill down to its children.') }}</p>
+                            @endif
+                          </div>
+
+                          <div>
+                            @if($parentCategory && $parentCategory->parent_id)
+                              <a href="{{ route('category.index', ['parent_id' => $parentCategory->parent_id]) }}" class="btn btn-secondary">
+                                {{ __('Back') }}
+                              </a>
+                            @elseif($parentCategory)
+                              <a href="{{ route('category.index') }}" class="btn btn-secondary">
+                                {{ __('Back') }}
+                              </a>
+                            @endif
+                            <a href="{{ route('category.create', $parentCategory ? ['parent_id' => $parentCategory->id] : []) }}" class="btn btn-primary">
+                              {{ $parentCategory ? __('Add Child Category') : __('Add Parent Category') }}
+                            </a>
+                          </div>
+                        </div>
 
                         <table class="table table-responsive-sm table-striped">
 
@@ -62,19 +130,17 @@
 
                           <tr>
 
-                            <th>Name</th>
+                            <th>{{ __('Category') }}</th>
 
-                            <th>Description</th>
+                            <th>{{ __('Description') }}</th>
 
-                            <th>Image</th>
+                            <th>{{ __('Image') }}</th>
 
-                            <th>Parent Category</th>
+                            <th>{{ __('Children') }}</th>
 
-                            <!-- <th></th> -->
+                            <th>{{ __('Setup') }}</th>
 
-                            <th></th>
-
-                            <!-- <th></th> -->
+                            <th class="text-right">{{ __('Actions') }}</th>
 
                           </tr>
 
@@ -82,82 +148,95 @@
 
                         <tbody>
 
-                          @foreach($categories as $category)
+                          @forelse($categories as $category)
 
-                            <?php 
-
-                            $categoryQuestionData = App\Models\Question::where('category_id',$category->id)->get();
-
-                            
-
-                            $paretCategoryName = '';
-
-                            if($category->parent_id){
-
-                              $categoryData = App\Models\Category::find($category->parent_id);
-
-                              $paretCategoryName = $categoryData->name;  
-
-                            }
-
-
-
-                            $isVerticalCategory = App\Models\Category::isVerticalCategory($category->id);
-
+                            <?php
+                              $isVerticalCategory = App\Models\Category::isVerticalCategory($category->id);
+                              $questionCount = $questionCounts[$category->id] ?? 0;
+                              $attributeCount = $attributeCounts[$category->id] ?? 0;
                             ?>
 
                             <tr>
 
-                              <td><strong>{{ $category->name }}</strong></td>
+                              <td>
+                                <div class="category-name">
+                                  <strong>{{ $category->name }}</strong>
+                                  @if($category->children_count > 0)
+                                    <span class="badge badge-info">{{ __('Parent') }}</span>
+                                  @elseif($isVerticalCategory)
+                                    <span class="badge badge-success">{{ __('Final Category') }}</span>
+                                  @else
+                                    <span class="badge badge-secondary">{{ __('Category') }}</span>
+                                  @endif
+                                </div>
+                              </td>
 
                               <td>{{ $category->description }}</td>
 
                               <td>{{ $category->image }}</td>
 
-                              <td>{{ $paretCategoryName }}</td>
-
-                              <!-- <td>
-
-                                <a href="{{ url('/category/' . $category->id) }}" class="btn btn-block btn-primary">View</a>
-
-                              </td> -->
-
                               <td>
-
-                                <a href="{{ url('/category/' . $category->id . '/edit') }}" class="btn btn-block btn-primary">Edit</a>
-
-                                @if($isVerticalCategory)
-
-                                <a href="{{ url('/category/questionList/' . $category->id) }}" class="btn btn-block btn-info">Question</a>
-                                <a href="{{ url('/category/attributes/' . $category->id) }}" class="btn btn-block btn-success">Attributes</a>
-
-                                @endif
-
+                                <span class="badge badge-light">{{ $category->children_count }}</span>
                               </td>
 
-                              <!-- <td>
+                              <td>
+                                @if($isVerticalCategory)
+                                  <span class="badge badge-info">{{ __('Questions') }}: {{ $questionCount }}</span>
+                                  <span class="badge badge-success">{{ __('Attributes') }}: {{ $attributeCount }}</span>
+                                @else
+                                  <span class="text-muted">{{ __('Child categories can be managed from here.') }}</span>
+                                @endif
+                              </td>
 
-                                <form action="{{ route('category.destroy', $category->id ) }}" method="POST">
+                              <td>
+                                <div class="category-actions">
+                                  @if($category->children_count > 0)
+                                    <a href="{{ route('category.index', ['parent_id' => $category->id]) }}" class="btn btn-sm btn-outline-info">
+                                      {{ __('View Children') }}
+                                    </a>
+                                  @else
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
+                                      {{ __('No Children') }}
+                                    </button>
+                                  @endif
 
-                                    @method('DELETE')
+                                  <a href="{{ route('category.create', ['parent_id' => $category->id]) }}" class="btn btn-sm btn-outline-success">
+                                    {{ __('Add Child') }}
+                                  </a>
 
-                                    @csrf
+                                  <a href="{{ url('/category/' . $category->id . '/edit') }}" class="btn btn-sm btn-primary">
+                                    {{ __('Edit') }}
+                                  </a>
 
-                                    <button class="btn btn-block btn-danger">Delete</button>
-
-                                </form>
-
-                              </td> -->
+                                  @if($isVerticalCategory)
+                                    <a href="{{ url('/category/questionList/' . $category->id) }}" class="btn btn-sm btn-info">
+                                      {{ __('Question') }}
+                                    </a>
+                                    <a href="{{ url('/category/attributes/' . $category->id) }}" class="btn btn-sm btn-success">
+                                      {{ __('Attributes') }}
+                                    </a>
+                                  @endif
+                                </div>
+                              </td>
 
                             </tr>
 
-                          @endforeach
+                          @empty
+                            <tr>
+                              <td colspan="6">
+                                <div class="category-empty">
+                                  <p class="mb-3">{{ __('No categories found at this level.') }}</p>
+                                  <a href="{{ route('category.create', $parentCategory ? ['parent_id' => $parentCategory->id] : []) }}" class="btn btn-primary">
+                                    {{ $parentCategory ? __('Add Child Category') : __('Add Parent Category') }}
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                          @endforelse
 
                         </tbody>
 
                       </table>
-
-                      
 
                     </div>
 
@@ -171,19 +250,8 @@
 
         </div>
 
-
-
 @endsection
-
-
-
-
 
 @section('javascript')
 
-
-
 @endsection
-
-
-

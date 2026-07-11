@@ -18,13 +18,48 @@ class CategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         //$categories = Category::with('children')->whereNull('parent_id')->get();
-        $categories = Category::all();
+        $parentId = $request->query('parent_id');
+        $parentCategory = $parentId ? Category::findOrFail($parentId) : null;
+        $categories = Category::withCount('children')
+            ->when($parentCategory, function ($query) use ($parentCategory) {
+                return $query->where('parent_id', $parentCategory->id);
+            }, function ($query) {
+                return $query->whereNull('parent_id');
+            })
+            ->orderBy('name')
+            ->get();
+
+        $breadcrumbs = collect();
+        $current = $parentCategory;
+        while ($current) {
+            $breadcrumbs->prepend($current);
+            $current = $current->parent;
+        }
+
+        $categoryIds = $categories->pluck('id')->toArray();
+        $questionCounts = DB::table('questions')
+            ->select('category_id', DB::raw('COUNT(*) as total'))
+            ->whereIn('category_id', $categoryIds)
+            ->whereNull('deleted_at')
+            ->groupBy('category_id')
+            ->pluck('total', 'category_id');
+
+        $attributeCounts = DB::table('attributes')
+            ->select('category_id', DB::raw('COUNT(*) as total'))
+            ->whereIn('category_id', $categoryIds)
+            ->where('flag', 1)
+            ->groupBy('category_id')
+            ->pluck('total', 'category_id');
 
         return view('dashboard.categories.index')->with([
-            'categories'  => $categories
+            'categories'      => $categories,
+            'parentCategory'  => $parentCategory,
+            'breadcrumbs'     => $breadcrumbs,
+            'questionCounts'  => $questionCounts,
+            'attributeCounts' => $attributeCounts,
         ]);
     }
 
@@ -33,10 +68,13 @@ class CategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
         $categories = Category::all();
-        return view('dashboard.categories.create', ['categories'  => $categories]);
+        return view('dashboard.categories.create', [
+            'categories'       => $categories,
+            'selectedParentId' => $request->query('parent_id'),
+        ]);
     }
 
     /**
@@ -56,7 +94,9 @@ class CategoryController extends Controller
         $message = "You have successfully created a Category!";
         Category::create($validatedData);
 
-        return redirect()->route('category.index')->withSuccess($message);
+        $redirectParams = $request->parent_id ? ['parent_id' => $request->parent_id] : [];
+
+        return redirect()->route('category.index', $redirectParams)->withSuccess($message);
     }
 
     /**
@@ -101,7 +141,9 @@ class CategoryController extends Controller
 
         $category->update($validatedData);
 
-        return redirect()->route('category.index')->withSuccess('You have successfully updated a Category!');
+        $redirectParams = $request->parent_id ? ['parent_id' => $request->parent_id] : [];
+
+        return redirect()->route('category.index', $redirectParams)->withSuccess('You have successfully updated a Category!');
     }
 
     /**

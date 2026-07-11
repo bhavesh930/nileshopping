@@ -47,9 +47,9 @@
                                 <label>Parent Category</label>
                                 <select class="form-control" name="parent_id">
                                     <option value="">Select Parent Category</option>
-                                    @foreach($categories as $category)
-                                        <option value="{{ $category->id }}" <?= isset($editData) && ($editData->parent_id == $category->id) ? 'selected' : ''?> >{{ $category->name }}</option>
-                                    @endforeach
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category->id }}" <?= (isset($editData) && ($editData->parent_id == $category->id)) || (!isset($editData) && isset($selectedParentId) && ($selectedParentId == $category->id)) ? 'selected' : ''?> >{{ $category->name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
 
