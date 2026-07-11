@@ -85,6 +85,9 @@ class SellerController extends Controller
             'email_verified_at' => date('Y-m-d H:i:s'),
             'menuroles' => 'seller',
         ]);
+        // Assign Spatie role
+        $user->assignRole('seller');
+        
         //echo $user;die();
         //$validatedData['user_id'] = $user;
         $seller = new Seller;
